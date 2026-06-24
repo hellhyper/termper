@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { initializeFirestore, collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { Terminal, HistoryEntry, Instruction } from '../types';
+import importedData from '../imported_data.json';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCEjtDav7-NZnSDoVIxp50Wh2U-DjrvSM8",
@@ -21,44 +22,8 @@ export const db = !dbId || dbId === "(default)"
   : initializeFirestore(app, {}, dbId);
 
 // Default data to seed if database is empty
-const defaultTerminals: Terminal[] = [
-  { id: '1', model: 'Honeywell EDA51', serialNumber: 'EDA51-23091103', status: 'На складе', createdAt: new Date().toISOString() },
-  { id: '2', model: 'Zebra TC21', serialNumber: 'TC21-9840293', status: 'В кабинете', createdAt: new Date().toISOString() },
-  { id: '3', model: 'Urovo RT40', serialNumber: 'RT40-48209382', status: 'В ремонте', createdAt: new Date().toISOString() }
-];
-
-const defaultHistory: HistoryEntry[] = [
-  {
-    id: 'h1',
-    terminalId: '2',
-    model: 'Zebra TC21',
-    serialNumber: 'TC21-9840293',
-    malfunction: 'Разбит тачскрин при падении на складе',
-    dateToIT: '2026-05-10',
-    dateToSC: '2026-05-12',
-    repairedBy: 'Сервисный Центр "Реновация"',
-    dateFromRepair: '2026-05-18',
-    dateToWarehouse: '2026-05-20',
-    rc: 'РЦ Ногинск',
-    zno: 'ЗНО-45892',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'h2',
-    terminalId: '3',
-    model: 'Urovo RT40',
-    serialNumber: 'RT40-48209382',
-    malfunction: 'Не сканирует штрихкоды',
-    dateToIT: '2026-05-15',
-    dateToSC: '2026-05-16',
-    repairedBy: 'РМ-Технолоджи',
-    dateFromRepair: '2026-05-22',
-    dateToWarehouse: '',
-    rc: 'РЦ Ногинск',
-    zno: 'ЗНО-45903',
-    createdAt: new Date().toISOString()
-  }
-];
+const defaultTerminals = importedData.terminals as Terminal[];
+const defaultHistory = importedData.history as HistoryEntry[];
 
 const defaultInstructions: Instruction[] = [
   {
@@ -76,6 +41,7 @@ const defaultInstructions: Instruction[] = [
     createdAt: new Date().toISOString()
   }
 ];
+
 
 export async function seedDatabaseIfEmpty() {
   try {
