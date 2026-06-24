@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Base custom resets */
+body {
+  background-color: #080e1a !important; /* Premium deep space-navy from photo */
+  color: #f1f5f9 !important;
+  font-family: var(--font-sans);
+  background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.08) 0%, rgba(99, 102, 241, 0.03) 40%, #080e1a 100%) !important;
+}
+
+/* Custom scrollbar for data tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b; /* dark indigo-slate */
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Precise dark theme selective adjustments to perfectly match the photo */
+body:not(.light-theme) .bg-slate-900,
+body:not(.light-theme) .bg-slate-900\/60,
+body:not(.light-theme) .bg-slate-950\/30 {
+  background-color: #0c1424 !important; /* Beautiful dark navy container background from photo */
+}
+
+body:not(.light-theme) .bg-slate-950,
+body:not(.light-theme) .bg-slate-950\/40,
+body:not(.light-theme) header,
+body:not(.light-theme) footer {
+  background-color: #070d18 !important; /* Deepest pristine black-navy */
+}
+
+body:not(.light-theme) .border-slate-800,
+body:not(.light-theme) .border-slate-800\/85,
+body:not(.light-theme) .border-slate-800\/80,
+body:not(.light-theme) .border-slate-800\/60,
+body:not(.light-theme) .border-slate-800\/50,
+body:not(.light-theme) .border-slate-700,
+body:not(.light-theme) .border-slate-900 {
+  border-color: #172237 !important; /* Extremely high quality fine borders from photo */
+}
+
+body:not(.light-theme) tr.hover\:bg-slate-800\/30:hover {
+  background-color: rgba(30, 41, 59, 0.35) !important;
+}
+
+body:not(.light-theme) input,
+body:not(.light-theme) select,
+body:not(.light-theme) textarea {
+  background-color: #050a14 !important;
+  border-color: #1a263e !important;
+  color: #f1f5f9 !important;
+}
+
+/* Light theme overrides - Clean, high-contrast pure white background & light tones, completely free of dull grays */
+body.light-theme {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  background-image: none !important;
+}
+
+body.light-theme .bg-slate-950,
+body.light-theme .bg-slate-900,
+body.light-theme .bg-slate-900\/40,
+body.light-theme .bg-slate-900\/50,
+body.light-theme .bg-slate-900\/60,
+body.light-theme .bg-slate-900\/70,
+body.light-theme .bg-slate-950\/25,
+body.light-theme .bg-slate-950\/45,
+body.light-theme .bg-slate-950\/50,
+body.light-theme .bg-slate-950\/80,
+body.light-theme .bg-slate-800,
+body.light-theme .bg-slate-800\/80,
+body.light-theme .bg-slate-800\/40,
+body.light-theme .bg-slate-800\/20,
+body.light-theme .bg-slate-800\/70,
+body.light-theme .bg-slate-850,
+body.light-theme .bg-slate-850\/50,
+body.light-theme .bg-slate-850\/40,
+body.light-theme header,
+body.light-theme footer {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.05), 0 8px 16px -6px rgba(99, 102, 241, 0.02) !important;
+}
+
+body.light-theme .border-slate-800,
+body.light-theme .border-slate-800\/80,
+body.light-theme .border-slate-800\/60,
+body.light-theme .border-slate-805,
+body.light-theme .border-slate-700,
+body.light-theme .border-slate-700\/60,
+body.light-theme .border-slate-700\/80,
+body.light-theme header,
+body.light-theme footer,
+body.light-theme .border-slate-900 {
+  border-color: rgba(99, 102, 241, 0.12) !important; /* Soft indigo-tinted borders instead of gray */
+}
+
+body.light-theme h1,
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme th,
+body.light-theme td,
+body.light-theme .text-white,
+body.light-theme .text-slate-100 {
+  color: #0f172a !important;
+}
+
+body.light-theme .text-slate-450,
+body.light-theme .text-slate-400,
+body.light-theme .text-slate-350,
+body.light-theme .text-slate-300,
+body.light-theme .text-slate-200 {
+  color: #334155 !important; /* Elegant dark slate text for readability */
+}
+
+body.light-theme .text-slate-500,
+body.light-theme .text-slate-600 {
+  color: #475569 !important; /* Pleasant slate-blue-gray */
+}
+
+body.light-theme .text-blue-300 {
+  color: #1d4ed8 !important; /* Rich Royal Blue */
+}
+body.light-theme .text-blue-400,
+body.light-theme .text-blue-500 {
+  color: #2563eb !important; /* High-contrast Primary Blue */
+}
+body.light-theme .text-emerald-400 {
+  color: #047857 !important; /* Full Contrast Emerald green */
+}
+body.light-theme .text-amber-400 {
+  color: #b45309 !important; /* Pure Amber orange */
+}
+body.light-theme .text-rose-400 {
+  color: #be123c !important; /* Rosy Pink red */
+}
+
+body.light-theme .bg-blue-600\/10,
+body.light-theme .bg-blue-500\/10 {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+}
+body.light-theme .bg-emerald-500\/10 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+body.light-theme .bg-amber-500\/10 {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+}
+body.light-theme .bg-rose-500\/10 {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
+
+body.light-theme .hover\:bg-slate-800:hover,
+body.light-theme .hover\:bg-slate-850\/50:hover,
+body.light-theme .hover\:bg-slate-800\/40:hover,
+body.light-theme .hover\:bg-slate-800\/70:hover,
+body.light-theme .hover\:bg-slate-850\/50:hover,
+body.light-theme .hover\:bg-slate-800\/45:hover,
+body.light-theme .group-hover\/sn\:bg-blue-500\/20:hover,
+body.light-theme tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.03) !important; /* Delightful subtle indigo touch */
+}
+
+body.light-theme input,
+body.light-theme select,
+body.light-theme textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.02) !important;
+}
+
+body.light-theme input:focus,
+body.light-theme select:focus,
+body.light-theme textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.15);
+}
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+/* Print layout optimizations for generating flawless vectors */
+@media print {
+  /* Hide the entire React root and modal overlays */
+  #root, .fixed, .backdrop-blur-md, [role="dialog"] {
+    display: none !important;
+  }
+  
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important; /* Prevents empty second pages precisely */
+  }
+
+  /* Disable standard browser header/footer layout text */
+  @page {
+    size: A4;
+    margin: 0 !important; /* Hides URL, page titles, dates completely */
+  }
+
+  /* Render our clean portal print sheet exactly on 1 sheet of A4 */
+  .printable-a4-sheet {
+    display: block !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    padding: 15mm 20mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  }
+
+  .printable-a4-sheet * {
+    visibility: visible !important;
+    color: #000000 !important;
+  }
+
+  /* Force table headers to show green background */
+  .printable-a4-sheet .print-table-header,
+  .printable-a4-sheet .print-table-header th {
+    background-color: #2e7d32 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Clear thick dark borders for document elements */
+  .printable-a4-sheet table, 
+  .printable-a4-sheet tr, 
+  .printable-a4-sheet td, 
+  .printable-a4-sheet th {
+    border: 1.2px solid #000000 !important;
+    border-color: #000000 !important;
+  }
+}
+

@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTerminal(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.model is string && data.model.size() <= 128
+        && data.serialNumber is string && data.serialNumber.size() <= 128
+        && (data.status == 'На складе' || data.status == 'В кабинете' || data.status == 'В ремонте')
+        && data.createdAt is string && data.createdAt.size() <= 128;
+    }
+
+    function isValidHistoryEntry(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.terminalId is string && data.terminalId.size() <= 128
+        && data.model is string && data.model.size() <= 128
+        && data.serialNumber is string && data.serialNumber.size() <= 128
+        && data.malfunction is string && data.malfunction.size() <= 1000
+        && data.dateToIT is string && data.dateToIT.size() <= 128
+        && data.dateToSC is string && data.dateToSC.size() <= 128
+        && data.repairedBy is string && data.repairedBy.size() <= 128
+        && data.dateFromRepair is string && data.dateFromRepair.size() <= 128
+        && data.dateToWarehouse is string && data.dateToWarehouse.size() <= 128
+        && data.rc is string && data.rc.size() <= 128
+        && data.zno is string && data.zno.size() <= 128
+        && data.createdAt is string && data.createdAt.size() <= 128;
+    }
+
+    function isValidInstruction(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.content is string && data.content.size() <= 15000
+        && data.category is string && data.category.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 128;
+    }
+
+    // Terminals Collection
+    match /terminals/{terminalId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(terminalId) && isValidTerminal(request.resource.data);
+      allow update: if isSignedIn() && isValidId(terminalId) && isValidTerminal(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(terminalId);
+    }
+
+    // History Collection
+    match /history/{historyId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(historyId) && isValidHistoryEntry(request.resource.data);
+      allow update: if isSignedIn() && isValidId(historyId) && isValidHistoryEntry(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(historyId);
+    }
+
+    // Instructions Collection
+    match /instructions/{instructionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(instructionId) && isValidInstruction(request.resource.data);
+      allow update: if isSignedIn() && isValidId(instructionId) && isValidInstruction(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(instructionId);
+    }
+  }
+}

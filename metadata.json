@@ -1,0 +1,6 @@
+{
+  "name": "Учет терминалов РЦ",
+  "description": "Система учета терминалов на распределительном центре (РЦ) с графиками, историей движения, ремонтов и базой инструкций.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

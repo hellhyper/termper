@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Terminal": {
+      "title": "Terminal",
+      "description": "Terminal profile details including model, serial number, and status.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "model": { "type": "string" },
+        "serialNumber": { "type": "string" },
+        "status": { "type": "string", "enum": ["На складе", "В кабинете", "В ремонте"] },
+        "createdAt": { "type": "string" },
+        "warrantyEndsAt": { "type": "string" }
+      },
+      "required": ["id", "model", "serialNumber", "status", "createdAt"]
+    },
+    "HistoryEntry": {
+      "title": "HistoryEntry",
+      "description": "Historical log of terminal movements, repairs, and assignments.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "terminalId": { "type": "string" },
+        "model": { "type": "string" },
+        "serialNumber": { "type": "string" },
+        "malfunction": { "type": "string" },
+        "dateToIT": { "type": "string" },
+        "dateToSC": { "type": "string" },
+        "repairedBy": { "type": "string" },
+        "dateFromRepair": { "type": "string" },
+        "dateToWarehouse": { "type": "string" },
+        "rc": { "type": "string" },
+        "zno": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "terminalId", "model", "serialNumber", "createdAt"]
+    },
+    "Instruction": {
+      "title": "Instruction",
+      "description": "Guide or manual for terminals configuration or logistics.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "content", "category", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/terminals/{terminalId}": {
+      "schema": "Terminal",
+      "description": "Collection of terminal devices."
+    },
+    "/history/{historyId}": {
+      "schema": "HistoryEntry",
+      "description": "History of terminal repairs and movements."
+    },
+    "/instructions/{instructionId}": {
+      "schema": "Instruction",
+      "description": "Knowledge base articles and instructions."
+    }
+  }
+}
