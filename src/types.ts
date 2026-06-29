@@ -23,6 +23,7 @@ export interface HistoryEntry {
   rc: string;               // РЦ
   zno: string;              // ЗНО
   createdAt: string;
+  userLogin?: string;
 }
 
 export interface Instruction {

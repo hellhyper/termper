@@ -33,6 +33,7 @@ export default function App() {
   
   // Navigation / Detail Drill down
   const [selectedTerminal, setSelectedTerminal] = useState<Terminal | null>(null);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
 
   // Status logs
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,8 @@ export default function App() {
       };
 
       await setDoc(doc(db, 'terminals', id), newTerminal);
+      setNewlyAddedId(id);
+      setTimeout(() => setNewlyAddedId(null), 5000);
       await fetchData(true);
     } catch (err: any) {
       throw err;
@@ -143,7 +146,8 @@ export default function App() {
         dateToWarehouse: newStatus === 'На складе' ? new Date().toISOString().split('T')[0] : '',
         rc: 'РЦ Ногинск',
         zno: '',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        userLogin: user?.email || 'System'
       };
 
       await setDoc(doc(db, 'history', historyId), newHistory);
@@ -191,7 +195,8 @@ export default function App() {
       const newHistoryEntry: HistoryEntry = {
         id,
         ...newLog,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        userLogin: user?.email || 'System'
       };
 
       await setDoc(doc(db, 'history', id), newHistoryEntry);
@@ -520,6 +525,7 @@ export default function App() {
                         onSelectTerminal={(t) => setSelectedTerminal(t)}
                         onUpdateTerminal={handleUpdateTerminal}
                         onNavigateToActs={() => setActiveTab('acts')}
+                        newlyAddedId={newlyAddedId}
                       />
                     </div>
                   )}

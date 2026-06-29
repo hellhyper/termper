@@ -26,7 +26,7 @@ interface WarrantiesListProps {
   onDeleteTerminal: (id: string) => Promise<void>;
 }
 
-type SortOption = 'date-asc' | 'date-desc' | 'model-asc' | 'serial-asc' | 'status-alert';
+type SortOption = 'date-asc' | 'date-desc' | 'model-asc' | 'serial-asc';
 type FilterOption = 'all' | 'expiring-soon' | 'expired' | 'active' | 'none';
 
 export default function WarrantiesList({ 
@@ -39,6 +39,12 @@ export default function WarrantiesList({
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date-asc');
+  const [selectedModel, setSelectedModel] = useState<string>('all');
+
+  const uniqueModels = useMemo(() => {
+    const models = terminals.map(t => t.model);
+    return Array.from(new Set(models)).sort();
+  }, [terminals]);
   
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -176,11 +182,13 @@ export default function WarrantiesList({
       });
     }
 
+    // Model Filter
+    if (selectedModel !== 'all') {
+      result = result.filter((term) => term.model === selectedModel);
+    }
+
     // Sort
     result.sort((a, b) => {
-      const statusA = getWarrantyStatus(a.warrantyEndsAt);
-      const statusB = getWarrantyStatus(b.warrantyEndsAt);
-
       if (sortBy === 'date-asc') {
         if (!a.warrantyEndsAt) return 1;
         if (!b.warrantyEndsAt) return -1;
@@ -193,17 +201,12 @@ export default function WarrantiesList({
         return a.model.localeCompare(b.model);
       } else if (sortBy === 'serial-asc') {
         return a.serialNumber.localeCompare(b.serialNumber);
-      } else if (sortBy === 'status-alert') {
-        const priority = { expired: 1, 'expiring-soon': 2, active: 3, none: 4 };
-        const pA = priority[statusA.type as keyof typeof priority] || 5;
-        const pB = priority[statusB.type as keyof typeof priority] || 5;
-        return pA - pB;
       }
       return 0;
     });
 
     return result;
-  }, [terminals, searchTerm, filter, sortBy]);
+  }, [terminals, searchTerm, filter, sortBy, selectedModel]);
 
   // Overall counts for badges
   const summaryCounts = useMemo(() => {
@@ -364,6 +367,23 @@ export default function WarrantiesList({
               </motion.button>
             </div>
 
+            {/* Model Filter Dropdown */}
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">
+                {lang === 'ua' ? 'Модель:' : 'Модель:'}
+              </span>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 focus:outline-hidden focus:border-blue-500 transition-all cursor-pointer"
+              >
+                <option value="all">{lang === 'ua' ? 'Всі моделі' : 'Все модели'}</option>
+                {uniqueModels.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Sorting trigger dropdown */}
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">
@@ -376,7 +396,6 @@ export default function WarrantiesList({
               >
                 <option value="date-asc">{lang === 'ua' ? 'Термін: Спочатку критичні' : 'Срок: Сначала критичные'}</option>
                 <option value="date-desc">{lang === 'ua' ? 'Термін: Спочатку свіжі' : 'Срок: Сначала свежие'}</option>
-                <option value="status-alert">{lang === 'ua' ? 'За статусом тривоги' : 'По статусу тревоги'}</option>
                 <option value="model-asc">{lang === 'ua' ? 'За моделлю (А-Я)' : 'По модели (А-Я)'}</option>
                 <option value="serial-asc">{lang === 'ua' ? 'За серійним номером' : 'По серийному номеру'}</option>
               </select>
@@ -440,10 +459,23 @@ export default function WarrantiesList({
                     </div>
 
                     {/* Serial Number */}
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1 md:col-span-2 flex items-center space-x-1.5">
                       <span className="text-[10px] md:text-xs font-mono font-bold text-blue-300 bg-blue-950/30 border border-blue-900/30 px-2 py-1 rounded-lg">
                         {terminal.serialNumber}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(terminal.serialNumber);
+                          alert(lang === 'ua' ? 'Серійний номер скопійовано!' : 'Серийный номер скопирован!');
+                        }}
+                        title={lang === 'ua' ? 'Скопіювати' : 'Скопировать'}
+                        className="p-1.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                      </button>
                     </div>
 
                     {/* Device Status */}

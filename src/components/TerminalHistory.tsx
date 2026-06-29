@@ -536,9 +536,16 @@ export default function TerminalHistory({
                             className="w-full p-1 border border-slate-700 bg-slate-800 text-white rounded-md text-xs min-h-[50px] focus:outline-hidden"
                           />
                         ) : (
-                          <span className="text-slate-400 font-medium block break-words leading-relaxed">
-                            {item.malfunction || '—'}
-                          </span>
+                          <div className="space-y-1">
+                            <span className="text-slate-400 font-medium block break-words leading-relaxed">
+                              {item.malfunction || '—'}
+                            </span>
+                            {item.userLogin && (
+                              <div className="text-[9px] font-mono text-blue-400 bg-blue-500/5 px-1.5 py-0.5 rounded-sm w-max">
+                                Выполнил: <span className="underline">{item.userLogin}</span>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </td>
 

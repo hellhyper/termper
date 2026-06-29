@@ -11,6 +11,7 @@ interface TerminalListProps {
   onSelectTerminal: (terminal: Terminal) => void;
   onUpdateTerminal?: (id: string, fields: Partial<Terminal>) => Promise<void>;
   onNavigateToActs: () => void;
+  newlyAddedId?: string | null;
 }
 
 export default function TerminalList({
@@ -21,6 +22,7 @@ export default function TerminalList({
   onSelectTerminal,
   onUpdateTerminal,
   onNavigateToActs,
+  newlyAddedId,
 }: TerminalListProps) {
   const { lang, t } = useI18n();
 
@@ -29,6 +31,21 @@ export default function TerminalList({
   const [showAddForm, setShowAddForm] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [showSimpleRepairList, setShowSimpleRepairList] = useState(false);
+  const [showSpecialList, setShowSpecialList] = useState(false);
+
+  const handleCopySpecialTable = () => {
+    const specialTerminals = terminals.filter(t => t.status === 'В ремонте' || t.status === 'В кабинете');
+    if (specialTerminals.length === 0) {
+      alert(lang === 'ua' ? 'Немає пристроїв у ремонті чи кабінеті' : 'Нет устройств в ремонте или кабинете');
+      return;
+    }
+    const header = lang === 'ua' 
+      ? "Модель\tСерійний номер\tСтатус\n" 
+      : "Модель\tСерийный номер\tСтатус\n";
+    const text = header + specialTerminals.map(t => `${t.model}\t${t.serialNumber}\t${t.status}`).join('\n');
+    navigator.clipboard.writeText(text);
+    alert(lang === 'ua' ? 'Таблицю успішно скопійовано у буфер обміну!' : 'Таблица успешно скопирована в буфер обмена!');
+  };
 
   // Serial Number editing state
   const [editingSerialId, setEditingSerialId] = useState<string | null>(null);
@@ -303,6 +320,21 @@ export default function TerminalList({
               </button>
             );
           })}
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={() => setShowSpecialList(!showSpecialList)}
+            className={`text-xs px-3.5 py-1.5 rounded-lg shrink-0 font-bold transition-all border cursor-pointer flex items-center space-x-1.5 ${
+              showSpecialList
+                ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 font-extrabold'
+                : 'bg-slate-800 border-slate-700 hover:border-slate-600 text-slate-300'
+            }`}
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span>{lang === 'ua' ? 'Звіт: Ремонт + Кабінет' : 'Отчет: Ремонт + Кабинет'}</span>
+          </motion.button>
         </div>
       </div>
 
@@ -336,6 +368,95 @@ export default function TerminalList({
               ? (lang === 'ua' ? 'Показати повну таблицю' : 'Показать полную таблицу')
               : (lang === 'ua' ? 'Сформувати просту таблицю' : 'Сформировать простую таблицу')}
           </motion.button>
+        </motion.div>
+      )}
+
+      {/* 4. Copyable Special Report Section */}
+      {showSpecialList && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-4"
+        >
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>{lang === 'ua' ? 'Спрощена таблиця ТЗД в ремонті або кабінеті' : 'Упрощенный список ТСД в ремонте или кабинете'}</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {lang === 'ua' 
+                  ? 'Таблиця містить марку/модель, серійний номер та статус пристроїв' 
+                  : 'Таблица содержит марку/модель, серийный номер и статус устройств'}
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={handleCopySpecialTable}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-lg shadow-blue-500/10 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>{lang === 'ua' ? 'Скопіювати таблицю' : 'Скопировать таблицу'}</span>
+              </motion.button>
+              
+              <button
+                type="button"
+                onClick={() => setShowSpecialList(false)}
+                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg border border-slate-750 cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden border border-slate-800 rounded-xl bg-slate-950/40">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-900/60 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <th className="py-3.5 px-5">{t('table_col_model')}</th>
+                  <th className="py-3.5 px-5">{t('table_col_serial')}</th>
+                  <th className="py-3.5 px-5 text-right">{t('table_col_status')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/40">
+                {terminals.filter(t => t.status === 'В ремонте' || t.status === 'В кабинете').length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="py-8 text-center text-xs text-slate-500 font-semibold">
+                      {lang === 'ua' ? 'Немає пристроїв у ремонті чи кабінеті' : 'Нет устройств в ремонте или кабинете'}
+                    </td>
+                  </tr>
+                ) : (
+                  terminals.filter(t => t.status === 'В ремонте' || t.status === 'В кабинете').map((terminal) => (
+                    <tr key={terminal.id} className="hover:bg-slate-800/20 transition-all font-medium text-xs">
+                      <td className="py-3 px-5 text-slate-200 font-semibold">
+                        {terminal.model}
+                      </td>
+                      <td className="py-3 px-5">
+                        <span className="font-mono text-blue-300 font-bold bg-blue-500/5 border border-blue-500/10 px-2 py-0.5 rounded-md">
+                          {terminal.serialNumber}
+                        </span>
+                      </td>
+                      <td className="py-3 px-5 text-right">
+                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          terminal.status === 'В ремонте' 
+                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                        }`}>
+                          {terminal.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </motion.div>
       )}
 
@@ -432,10 +553,15 @@ export default function TerminalList({
                   statusBadgeCss = 'bg-rose-500/10 text-rose-300 border border-rose-500/20';
                 }
 
+                const isNew = terminal.id === newlyAddedId;
+
                 return (
-                  <tr
+                  <motion.tr
                     key={terminal.id}
-                    className="hover:bg-slate-800/30 group transition-all duration-150 cursor-pointer"
+                    initial={isNew ? { scale: 0.95, opacity: 0, backgroundColor: 'rgba(59, 130, 246, 0.4)' } : { opacity: 0, y: 10 }}
+                    animate={isNew ? { scale: 1, opacity: 1, backgroundColor: 'rgba(59, 130, 246, 0)' } : { opacity: 1, y: 0 }}
+                    transition={isNew ? { duration: 3, ease: 'easeOut' } : { duration: 0.25 }}
+                    className={`hover:bg-slate-800/30 group transition-all duration-150 cursor-pointer ${isNew ? 'ring-2 ring-blue-500/50' : ''}`}
                     onClick={() => onSelectTerminal(terminal)}
                   >
                     {/* Model, with helper text */}
@@ -547,56 +673,24 @@ export default function TerminalList({
                       </div>
                     </td>
 
-                    {/* Row delete buttons */}
+                    {/* Row action button */}
                     <td
                       className="py-4 px-6 border-b border-slate-800/50 text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-end space-x-2">
-                        {confirmDeleteId === terminal.id ? (
-                          <div className="flex items-center space-x-1.5 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-xl animate-fade-in text-[10px]" onClick={(e) => e.stopPropagation()}>
-                            <span className="text-rose-300 font-bold shrink-0">{t('delete_confirm_question')}</span>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                await onDeleteTerminal(terminal.id);
-                                setConfirmDeleteId(null);
-                              }}
-                              className="bg-rose-600 hover:bg-rose-700 text-white rounded-md text-[10px] font-black px-2.5 py-1 transition-colors cursor-pointer"
-                            >
-                              {t('yes')}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfirmDeleteId(null)}
-                              className="bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-md text-[10px] font-bold px-2.5 py-1 transition-colors cursor-pointer"
-                            >
-                              {t('no')}
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => onSelectTerminal(terminal)}
-                              className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
-                              title={t('open_history_tooltip')}
-                            >
-                              <ClipboardList className="w-4 h-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfirmDeleteId(terminal.id)}
-                              className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
-                              title={t('delete_card_tooltip')}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
+                      <div className="flex items-center justify-end">
+                        <button
+                          type="button"
+                          onClick={() => onSelectTerminal(terminal)}
+                          className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-all cursor-pointer flex items-center space-x-1"
+                          title={t('open_history_tooltip')}
+                        >
+                          <ClipboardList className="w-4.5 h-4.5" />
+                          <span className="text-[11px] font-bold hidden xl:inline">{lang === 'ua' ? 'Історія' : 'История'}</span>
+                        </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 );
               })
             )}

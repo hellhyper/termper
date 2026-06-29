@@ -446,11 +446,18 @@ export default function RecentMovements({
                         <div className="text-slate-200 font-semibold leading-relaxed break-words text-xs py-0.5">
                           {item.malfunction}
                         </div>
-                        {item.createdAt && (
-                          <div className="text-[9px] text-slate-500 font-mono mt-1 font-bold">
-                            Cabinet metadata: {new Date(item.createdAt).toLocaleString(lang === 'ua' ? 'uk-UA' : 'ru-RU')}
-                          </div>
-                        )}
+                        <div className="flex flex-col space-y-0.5 mt-1 text-[9px] text-slate-500 font-mono font-bold">
+                          {item.createdAt && (
+                            <div>
+                              {lang === 'ua' ? 'Дата запису: ' : 'Дата записи: '}{new Date(item.createdAt).toLocaleString(lang === 'ua' ? 'uk-UA' : 'ru-RU')}
+                            </div>
+                          )}
+                          {item.userLogin && (
+                            <div className="text-blue-400">
+                              {lang === 'ua' ? 'Виконав: ' : 'Выполнил: '}<span className="underline">{item.userLogin}</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

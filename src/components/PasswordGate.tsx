@@ -9,54 +9,13 @@ interface PasswordGateProps {
 }
 
 export default function PasswordGate({ onSuccess }: PasswordGateProps) {
-  const [mode, setMode] = useState<'pin' | 'signin' | 'signup'>('pin');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const CORRECT_PASSWORD = 'Peremoha2026';
-
-  const handleMasterPasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    if (password === CORRECT_PASSWORD) {
-      try {
-        // Authenticate with default operator account in Firebase
-        const defaultEmail = 'operator@peremoha.com';
-        const defaultPass = 'Peremoha2026';
-        
-        try {
-          await signInWithEmailAndPassword(auth, defaultEmail, defaultPass);
-        } catch (signInErr: any) {
-          // If default user doesn't exist yet, register it automatically
-          if (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential') {
-            await createUserWithEmailAndPassword(auth, defaultEmail, defaultPass);
-          } else {
-            throw signInErr;
-          }
-        }
-
-        setSuccess(true);
-        setTimeout(() => {
-          setIsSubmitting(false);
-          onSuccess();
-        }, 1250);
-      } catch (err: any) {
-        setError('Ошибка при авторизации в облачной базе данных: ' + err.message);
-        setIsSubmitting(false);
-      }
-    } else {
-      setTimeout(() => {
-        setError('Введен неверный код доступа. Доступ к терминалам заблокирован!');
-        setIsSubmitting(false);
-      }, 350);
-    }
-  };
 
   const handleEmailAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,15 +107,6 @@ export default function PasswordGate({ onSuccess }: PasswordGateProps) {
             <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
               <button
                 type="button"
-                onClick={() => { setMode('pin'); setError(null); setPassword(''); }}
-                className={`flex-1 py-2 rounded-lg font-semibold transition ${
-                  mode === 'pin' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Код доступа
-              </button>
-              <button
-                type="button"
                 onClick={() => { setMode('signin'); setError(null); setPassword(''); }}
                 className={`flex-1 py-2 rounded-lg font-semibold transition ${
                   mode === 'signin' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
@@ -198,59 +148,6 @@ export default function PasswordGate({ onSuccess }: PasswordGateProps) {
 
           {/* Forms container */}
           <AnimatePresence mode="wait">
-            {!success && mode === 'pin' && (
-              <motion.form
-                key="pin-form"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                onSubmit={handleMasterPasswordSubmit}
-                className="space-y-4"
-              >
-                <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    Общий код доступа
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                      <KeyRound className="w-4 h-4" />
-                    </span>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Введите пароль..."
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (error) setError(null);
-                      }}
-                      disabled={isSubmitting}
-                      className="w-full text-xs pl-10 pr-10 py-3 rounded-xl border border-slate-700 bg-slate-950/40 text-white placeholder-slate-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium font-mono"
-                      required
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      tabIndex={-1}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.015 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg hover:shadow-blue-500/10 transition-all flex items-center justify-center cursor-pointer"
-                >
-                  {isSubmitting ? 'Проверка...' : 'Разблокировать систему'}
-                </motion.button>
-              </motion.form>
-            )}
-
             {!success && (mode === 'signin' || mode === 'signup') && (
               <motion.form
                 key="email-form"

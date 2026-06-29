@@ -182,11 +182,15 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
                 {/* Data Arcs with Linear Gradients */}
                 {(() => {
                   let accumulatedOffset = 0;
+                  const activeSegmentsCount = segments.length;
                   return segments.map((segment) => {
                     const percentage = (segment.value / total) * 100;
-                    const strokeLength = (percentage / 100) * circ;
+                    const hasMultiple = activeSegmentsCount > 1;
+                    const strokeLength = hasMultiple 
+                      ? ((segment.value / total) * circ) - 5
+                      : (segment.value / total) * circ;
                     const strokeOffset = -accumulatedOffset;
-                    accumulatedOffset += strokeLength;
+                    accumulatedOffset += (segment.value / total) * circ;
 
                     const isHovered = hoveredSegment === segment.label;
                     
@@ -204,10 +208,10 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
                         r={r}
                         fill="transparent"
                         stroke={gradientUrl}
-                        strokeWidth={isHovered ? 14 : 10}
+                        strokeWidth={isHovered ? 12 : 8}
                         strokeDasharray={`${strokeLength} ${circ - strokeLength}`}
                         strokeDashoffset={strokeOffset}
-                        strokeLinecap="round"
+                        strokeLinecap="butt"
                         className="transition-all duration-350 cursor-pointer"
                         onMouseEnter={() => setHoveredSegment(segment.label)}
                         onMouseLeave={() => setHoveredSegment(null)}
