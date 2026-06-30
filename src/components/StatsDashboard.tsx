@@ -10,10 +10,12 @@ interface StatsDashboardProps {
 export default function StatsDashboard({ terminals }: StatsDashboardProps) {
   const { lang, t } = useI18n();
 
-  const total = terminals.length;
-  const inWarehouse = terminals.filter((t) => t.status === 'На складе').length;
-  const inOffice = terminals.filter((t) => t.status === 'В кабинете').length;
-  const inRepair = terminals.filter((t) => t.status === 'В ремонте').length;
+  const activeTerminals = terminals.filter((t) => !t.isDeleted);
+  const total = activeTerminals.length;
+  const inWarehouse = activeTerminals.filter((t) => t.status === 'На складе').length;
+  const inOffice = activeTerminals.filter((t) => t.status === 'В кабинете').length;
+  const inRepair = activeTerminals.filter((t) => t.status === 'В ремонте').length;
+  const tc520Count = activeTerminals.filter((t) => t.model.replace(/С/g, 'C').replace(/с/g, 'c').toLowerCase().includes('tc520')).length;
 
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
 
@@ -40,9 +42,9 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       {/* 1. Quick Stats Grid */}
-      <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+      <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
         {/* Total Terminals Card */}
-        <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 animate-fade-in">
+        <div className="col-span-2 sm:col-span-2 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 animate-fade-in">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">{t('stats_total_title')}</span>
             <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
@@ -55,8 +57,22 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
           </div>
         </div>
 
+        {/* TC520 Model Card */}
+        <div className="col-span-2 sm:col-span-1 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-400">{lang === 'ua' ? 'Модель TC520' : 'Модель TC520'}</span>
+            <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 font-mono text-[10px] font-bold">
+              TC520
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-3xl font-extrabold text-amber-400 tracking-tight">{tc520Count}</span>
+            <span className="text-xs text-slate-500 block mt-1">{lang === 'ua' ? 'пристроїв цієї моделі' : 'устройств этой модели'}</span>
+          </div>
+        </div>
+
         {/* In Warehouse Card */}
-        <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 animate-fade-in">
+        <div className="col-span-1 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 animate-fade-in">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">{t('stats_warehouse_title')}</span>
             <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
@@ -73,7 +89,7 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
         </div>
 
         {/* In Cabinet Card */}
-        <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 animate-fade-in">
+        <div className="col-span-1 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 animate-fade-in">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">{t('stats_cabinet_title')}</span>
             <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
@@ -90,7 +106,7 @@ export default function StatsDashboard({ terminals }: StatsDashboardProps) {
         </div>
 
         {/* In Repair Card */}
-        <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-rose-500/40 hover:shadow-lg hover:shadow-rose-500/5 transition-all duration-300 animate-fade-in">
+        <div className="col-span-2 sm:col-span-1 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-between hover:border-rose-500/40 hover:shadow-lg hover:shadow-rose-500/5 transition-all duration-300 animate-fade-in">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-400">{t('stats_repair_title')}</span>
             <div className="p-2 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">

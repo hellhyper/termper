@@ -678,16 +678,49 @@ export default function TerminalList({
                       className="py-4 px-6 border-b border-slate-800/50 text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-end">
-                        <button
-                          type="button"
-                          onClick={() => onSelectTerminal(terminal)}
-                          className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-all cursor-pointer flex items-center space-x-1"
-                          title={t('open_history_tooltip')}
-                        >
-                          <ClipboardList className="w-4.5 h-4.5" />
-                          <span className="text-[11px] font-bold hidden xl:inline">{lang === 'ua' ? 'Історія' : 'История'}</span>
-                        </button>
+                      <div className="flex items-center justify-end min-h-[38px]">
+                        {confirmDeleteId === terminal.id ? (
+                          <div className="flex items-center space-x-1.5 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-xl animate-fade-in text-[10px]" onClick={(e) => e.stopPropagation()}>
+                            <span className="text-rose-300 font-bold shrink-0">{lang === 'ua' ? 'Вилучити?' : 'Удалить?'}</span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                await onDeleteTerminal(terminal.id);
+                                setConfirmDeleteId(null);
+                              }}
+                              className="bg-rose-600 hover:bg-rose-700 text-white rounded-md text-[10px] font-black px-2.5 py-1 transition-colors cursor-pointer"
+                            >
+                              {lang === 'ua' ? 'Так' : 'Да'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-md text-[10px] font-bold px-2.5 py-1 transition-colors cursor-pointer"
+                            >
+                              {lang === 'ua' ? 'Ні' : 'Нет'}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              type="button"
+                              onClick={() => onSelectTerminal(terminal)}
+                              className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-all cursor-pointer flex items-center space-x-1"
+                              title={t('open_history_tooltip')}
+                            >
+                              <ClipboardList className="w-4.5 h-4.5" />
+                              <span className="text-[11px] font-bold hidden xl:inline">{lang === 'ua' ? 'Історія' : 'История'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(terminal.id)}
+                              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
+                              title={lang === 'ua' ? 'Вилучити в кошик' : 'Удалить в корзину'}
+                            >
+                              <Trash2 className="w-4.5 h-4.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </motion.tr>

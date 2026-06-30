@@ -18,6 +18,7 @@ import {
 import { useI18n } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'motion/react';
 import CustomDatePicker from './CustomDatePicker';
+import TzdRenameTab from './TzdRenameTab';
 
 interface WarrantiesListProps {
   terminals: Terminal[];
@@ -36,6 +37,7 @@ export default function WarrantiesList({
   onDeleteTerminal 
 }: WarrantiesListProps) {
   const { lang } = useI18n();
+  const [subTab, setSubTab] = useState<'warranties' | 'rename'>('warranties');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date-asc');
@@ -228,8 +230,36 @@ export default function WarrantiesList({
 
   return (
     <div className="space-y-6">
-      {/* Upper header summary panel */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
+      {/* Sub tabs selector */}
+      <div className="flex bg-slate-950/40 p-1 rounded-xl border border-slate-800/80 text-xs w-full max-w-md">
+        <button
+          type="button"
+          onClick={() => setSubTab('warranties')}
+          className={`flex-1 py-2.5 rounded-lg font-bold transition-all cursor-pointer text-center ${
+            subTab === 'warranties'
+              ? 'bg-slate-800 text-white shadow-xs'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {lang === 'ua' ? 'Реєстр та гарантії' : 'Реестр и гарантии'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setSubTab('rename')}
+          className={`flex-1 py-2.5 rounded-lg font-bold transition-all cursor-pointer text-center ${
+            subTab === 'rename'
+              ? 'bg-slate-800 text-white shadow-xs'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {lang === 'ua' ? 'Перейменування ТЗД' : 'Переименование ТСД'}
+        </button>
+      </div>
+
+      {subTab === 'warranties' ? (
+        <>
+          {/* Upper header summary panel */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
         <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
           <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
             {lang === 'ua' ? 'Всього ТЗД' : 'Всего ТСД'}
@@ -784,6 +814,10 @@ export default function WarrantiesList({
           </div>
         )}
       </AnimatePresence>
+        </>
+      ) : (
+        <TzdRenameTab />
+      )}
     </div>
   );
 }

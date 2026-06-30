@@ -22,7 +22,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem('termhub_theme');
-    return (stored === 'light' || stored === 'dark') ? stored : 'dark';
+    return (stored === 'light' || stored === 'dark') ? stored : 'light';
   });
 
   useEffect(() => {

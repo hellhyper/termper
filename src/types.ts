@@ -7,6 +7,8 @@ export interface Terminal {
   status: TerminalStatus;
   createdAt: string;
   warrantyEndsAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string;
 }
 
 export interface HistoryEntry {

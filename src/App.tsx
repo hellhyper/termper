@@ -10,7 +10,9 @@ import PasswordGate from './components/PasswordGate';
 import WarrantiesList from './components/WarrantiesList';
 import RecentMovements from './components/RecentMovements';
 import ActGeneratorModal from './components/ActGeneratorModal';
-import { Monitor, BookOpen, AlertCircle, RefreshCw, BarChart2, History, FileText, ShieldCheck } from 'lucide-react';
+import RecentlyDeleted from './components/RecentlyDeleted';
+import DetailedStats from './components/DetailedStats';
+import { Monitor, BookOpen, AlertCircle, RefreshCw, BarChart2, History, FileText, ShieldCheck, Trash2 } from 'lucide-react';
 import { useI18n } from './context/LanguageContext';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -24,7 +26,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'terminals' | 'acts' | 'instructions' | 'help' | 'setup' | 'movements'>('terminals');
+  const [activeTab, setActiveTab] = useState<'terminals' | 'acts' | 'instructions' | 'help' | 'setup' | 'movements' | 'deleted' | 'analytics'>('terminals');
   
   // Database States
   const [terminals, setTerminals] = useState<Terminal[]>([]);
@@ -174,10 +176,13 @@ export default function App() {
     }
   };
 
-  // Delete terminal
+  // Delete terminal (Soft delete - move to Recently Deleted)
   const handleDeleteTerminal = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'terminals', id));
+      await updateDoc(doc(db, 'terminals', id), {
+        isDeleted: true,
+        deletedAt: new Date().toISOString()
+      });
       
       if (selectedTerminal?.id === id) {
         setSelectedTerminal(null);
@@ -185,6 +190,29 @@ export default function App() {
       await fetchData(true);
     } catch (err: any) {
       alert(err.message || 'Ошибка при удалении устройства');
+    }
+  };
+
+  // Restore terminal from Recently Deleted
+  const handleRestoreTerminal = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'terminals', id), {
+        isDeleted: false,
+        deletedAt: null
+      });
+      await fetchData(true);
+    } catch (err: any) {
+      alert(err.message || 'Ошибка при восстановлении устройства');
+    }
+  };
+
+  // Permanently delete terminal
+  const handlePurgeTerminal = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'terminals', id));
+      await fetchData(true);
+    } catch (err: any) {
+      alert(err.message || 'Ошибка при окончательном удалении устройства');
     }
   };
 
@@ -394,6 +422,25 @@ export default function App() {
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
+                    onClick={() => setActiveTab('analytics')}
+                    className="relative flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors cursor-pointer"
+                  >
+                    {activeTab === 'analytics' && (
+                      <motion.div
+                        layoutId="activeTabPill"
+                        className="absolute inset-0 bg-blue-500/15 border border-blue-500/30 rounded-xl"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    <BarChart2 className={`relative w-4 h-4 z-10 ${activeTab === 'analytics' ? 'text-blue-300' : 'text-slate-400'}`} />
+                    <span className={`relative z-10 ${activeTab === 'analytics' ? 'text-blue-300 font-extrabold' : 'text-slate-400 hover:text-white'}`}>
+                      {lang === 'ua' ? 'Аналітика' : 'Аналитика'}
+                    </span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setActiveTab('acts')}
                     className="relative flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors cursor-pointer"
                   >
@@ -459,6 +506,25 @@ export default function App() {
                     <History className={`relative w-4 h-4 z-10 ${activeTab === 'movements' ? 'text-blue-300' : 'text-slate-400'}`} />
                     <span className={`relative z-10 ${activeTab === 'movements' ? 'text-blue-300 font-extrabold' : 'text-slate-400 hover:text-white'}`}>{t('tab_movements')}</span>
                   </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setActiveTab('deleted')}
+                    className="relative flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors cursor-pointer"
+                  >
+                    {activeTab === 'deleted' && (
+                      <motion.div
+                        layoutId="activeTabPill"
+                        className="absolute inset-0 bg-blue-500/15 border border-blue-500/30 rounded-xl"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    <Trash2 className={`relative w-4 h-4 z-10 ${activeTab === 'deleted' ? 'text-blue-300' : 'text-slate-400'}`} />
+                    <span className={`relative z-10 ${activeTab === 'deleted' ? 'text-blue-300 font-extrabold' : 'text-slate-400 hover:text-white'}`}>
+                      {lang === 'ua' ? 'Кошик' : 'Корзина'} ({terminals.filter(t => t.isDeleted).length})
+                    </span>
+                  </motion.button>
                 </div>
 
                 <motion.button
@@ -518,7 +584,7 @@ export default function App() {
 
                       {/* Central main database grid */}
                       <TerminalList
-                        terminals={terminals}
+                        terminals={terminals.filter(t => !t.isDeleted)}
                         onAddTerminal={handleAddTerminal}
                         onUpdateStatus={handleUpdateTerminalStatus}
                         onDeleteTerminal={handleDeleteTerminal}
@@ -534,7 +600,7 @@ export default function App() {
                     <ActGeneratorModal
                       isOpen={true}
                       onClose={() => setActiveTab('terminals')}
-                      terminals={terminals}
+                      terminals={terminals.filter(t => !t.isDeleted)}
                       isFullPage={true}
                     />
                   )}
@@ -557,7 +623,7 @@ export default function App() {
 
                   {activeTab === 'setup' && (
                     <WarrantiesList
-                      terminals={terminals}
+                      terminals={terminals.filter(t => !t.isDeleted)}
                       onUpdateTerminal={handleUpdateTerminal}
                       onAddTerminal={handleAddTerminal}
                       onDeleteTerminal={handleDeleteTerminal}
@@ -566,10 +632,25 @@ export default function App() {
 
                   {activeTab === 'movements' && (
                     <RecentMovements
-                      terminals={terminals}
+                      terminals={terminals.filter(t => !t.isDeleted)}
                       history={history}
                       onSelectTerminal={(t) => setSelectedTerminal(t)}
                       onSelectTab={(tab) => setActiveTab(tab)}
+                    />
+                  )}
+
+                  {activeTab === 'analytics' && (
+                    <DetailedStats
+                      terminals={terminals}
+                      history={history}
+                    />
+                  )}
+
+                  {activeTab === 'deleted' && (
+                    <RecentlyDeleted
+                      terminals={terminals}
+                      onRestoreTerminal={handleRestoreTerminal}
+                      onPurgeTerminal={handlePurgeTerminal}
                     />
                   )}
                 </motion.div>
